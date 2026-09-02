@@ -28,5 +28,5 @@ y_pred = y_scaler.inverse_transform(model.predict(x_scaler.transform(X)))
 ```
 
 The feature-engineering pipeline that produces the 15 input features is in
-`benchmark/phases/feature_eng.py` and
+`experiments/phases/feature_eng.py` and
 `model/feature_engineering.py` in this repository.

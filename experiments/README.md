@@ -19,7 +19,7 @@ This benchmark measures **training time, inference latency, resource usage, and 
 
 ```
 src/
-├── benchmark/
+├── experiments/
 │   ├── config.py                 # All settings: tiers, model arch, training params
 │   ├── runner.py                 # Main CLI orchestrator (4-phase pipeline)
 │   ├── data_export.py            # One-time InfluxDB -> Parquet exporter
@@ -51,7 +51,7 @@ tools/
 ### 1. Install Dependencies
 
 ```bash
-pip install -r benchmark/requirements_benchmark.txt
+pip install -r experiments/requirements_benchmark.txt
 ```
 
 ### 2. Get the Data
@@ -74,16 +74,16 @@ src/data/parquet/
 
 
 # Quick validation (1 sensor, 1 run)
-python -m benchmark.runner --platform <PLATFORM_NAME> --tiers tiny --runs 1
+python -m experiments.runner --platform <PLATFORM_NAME> --tiers tiny --runs 1
 
 # Full benchmark (all tiers, 3 runs)
-python -m benchmark.runner --platform <PLATFORM_NAME> --runs 3
+python -m experiments.runner --platform <PLATFORM_NAME> --runs 3
 
 # Specific tiers
-python -m benchmark.runner --platform <PLATFORM_NAME> --tiers tiny small medium --runs 3
+python -m experiments.runner --platform <PLATFORM_NAME> --tiers tiny small medium --runs 3
 
 # Inference-only mode (for memory-constrained edge devices)
-python -m benchmark.runner --platform <PLATFORM_NAME> --inference-only --pretrained-dir ./pretrained_models/ --runs 3
+python -m experiments.runner --platform <PLATFORM_NAME> --inference-only --pretrained-dir ./pretrained_models/ --runs 3
 ```
 
 ## Sensor Tiers
@@ -125,11 +125,11 @@ To re-export data from InfluxDB (only needed on the machine with InfluxDB access
 
 
 # Export all 37 sensors
-python -m benchmark.data_export
+python -m experiments.data_export
 
 # Export single sensor
-python -m benchmark.data_export --sensor drakewell__1163 avgspeed_nw
+python -m experiments.data_export --sensor drakewell__1163 avgspeed_nw
 
 # Verify exported data
-python -m benchmark.data_export --verify
+python -m experiments.data_export --verify
 ```

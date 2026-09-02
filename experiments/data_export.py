@@ -5,9 +5,9 @@ Runs on the development machine (with InfluxDB access) only.
 Target machines use the pre-exported Parquet files directly.
 
 Usage:
-    python -m benchmark.data_export                                      # Export all 37 sensors
-    python -m benchmark.data_export --sensor drakewell__1163 avgspeed_nw # Single sensor
-    python -m benchmark.data_export --verify                             # Validate manifest vs files
+    python -m experiments.data_export                                      # Export all 37 sensors
+    python -m experiments.data_export --sensor drakewell__1163 avgspeed_nw # Single sensor
+    python -m experiments.data_export --verify                             # Validate manifest vs files
 """
 
 import sys
@@ -22,7 +22,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent.parent.parent))
 
 from model.data_loader import DataLoader
-from benchmark.config import (
+from experiments.config import (
     TIER_FULL, DATE_RANGE_START, DATE_RANGE_END, BATCH_DAYS,
     EXPECTED_POINTS_PER_SENSOR, TRAFFIC_DIR, EVENTS_FILE,
     MANIFEST_FILE, DATA_DIR, sensor_filename,

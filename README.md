@@ -9,7 +9,7 @@ Analysis of Performance, Cost, and Scalability"** (University of Manchester).
 | Path | Contents |
 |---|---|
 | [`paper_artifacts/`](paper_artifacts/) | **Start here for reviewer materials**: trained models + scalers, the model evaluation document, the observed monitoring metrics document, and a SHA-256 manifest. |
-| `benchmark/` | The cross-platform benchmark system (runner, training/inference/feature-engineering phases, per-platform configuration). |
+| `experiments/` | The cross-platform benchmark system (runner, training/inference/feature-engineering phases, per-platform configuration). |
 | `results/` | Sample benchmark result records (per-run JSON with wall-clock, accuracy, and resource telemetry). |
 | `model/` | Shared data-loading, feature-engineering, and evaluation modules used by the benchmark. |
 | `tools/` | Configuration template (credentials blanked). |

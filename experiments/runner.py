@@ -3,16 +3,16 @@ Main CLI orchestrator for the cross-platform benchmark.
 
 Usage:
     # Full benchmark (all tiers, 3 runs each)
-    python -m benchmark.runner --platform dell_precision_fog_gpu --runs 3
+    python -m experiments.runner --platform dell_precision_fog_gpu --runs 3
 
     # Quick validation
-    python -m benchmark.runner --platform local --tiers tiny --runs 1
+    python -m experiments.runner --platform local --tiers tiny --runs 1
 
     # Specific tiers
-    python -m benchmark.runner --platform hp_workstation_fog --tiers tiny small medium --runs 3
+    python -m experiments.runner --platform hp_workstation_fog --tiers tiny small medium --runs 3
 
     # Inference only (for platforms where training OOMs)
-    python -m benchmark.runner --platform aws_t2_rsu --inference-only --pretrained-dir ./pretrained_models/ --runs 3
+    python -m experiments.runner --platform aws_t2_rsu --inference-only --pretrained-dir ./pretrained_models/ --runs 3
 """
 
 import os
