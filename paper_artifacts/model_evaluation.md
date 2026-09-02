@@ -58,6 +58,8 @@ Aggregate: mean MAE 2.07 mph (median 1.92); mean MAPE 8.47% (median 7.41%). The 
 
 ![Left: within-slot CoV (2023) per sensor, sorted; highlighted bars are the sensors discussed in the text. Right: within-slot CoV against held-out MAPE under the 3-year regime (Spearman rho = 0.94).](within_slot_cov.png)
 
+![The within-slot spread seen directly: all weeks of 2023 folded onto one Monday-Sunday axis at 5-minute resolution. At each slot, the line is the mean across the ~52 weeks and the bands the 25th-75th and 10th-90th percentiles of those same weeks. On 1276 west (top) the same clock time spans near-standstill to free flow depending on the week; on 1425 east (bottom, lowest within-slot CoV) the band stays a narrow ribbon. A calendar-feature model predicts one value per slot, so the band width bounds its achievable accuracy.](sensor_1276w_profile.png)
+
 ## Common-test-set scenario comparison
 
 All training scenarios of the paper (3-year base, 4.2-year cold start, and progressive warm-start re-training windows PW3/PW6/PW12) were additionally evaluated on identical held-out periods. Mean MAE (mph) per evaluation window:
