@@ -1,0 +1,21 @@
+{
+  "platform_name": "pop-os",
+  "os": "Linux",
+  "os_version": "#202511241048~1764607909~24.04~df6b2b6 SMP PREEMPT_DYNAMIC Mon D",
+  "cpu_cores_physical": 14,
+  "cpu_cores_logical": 20,
+  "ram_gb": 30.93,
+  "python_version": "3.12.3",
+  "cpu_model": "13th Gen Intel(R) Core(TM) i9-13900H",
+  "gpu_names": [
+    "NVIDIA GeForce RTX 4090 Laptop GPU"
+  ],
+  "gpu_memory_mb": 16376,
+  "gpu_memory_gb": 16.0,
+  "tensorflow_version": "2.20.0",
+  "tf_gpu_available": true,
+  "tf_gpu_count": 1,
+  "tf_gpu_devices": [
+    "/physical_device:GPU:0"
+  ]
+}

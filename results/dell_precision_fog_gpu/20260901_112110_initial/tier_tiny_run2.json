@@ -1,0 +1,126 @@
+{
+  "experiment_id": "dell_precision_fog_gpu-tiny-run2",
+  "platform": "dell_precision_fog_gpu",
+  "platform_tier": "fog_accelerator",
+  "sensor_tier": "tiny",
+  "sensor_count": 1,
+  "run_id": 2,
+  "timestamp": "2026-09-01T11:22:06.904144",
+  "mode": "scratch",
+  "phases": {
+    "data_loading": {
+      "wall_clock_sec": 0.0539,
+      "cpu_time_sec": 0.1486,
+      "peak_memory_mb": 15.13,
+      "rss_before_mb": 2076.68,
+      "rss_after_mb": 2074.94,
+      "gpu_memory_peak_mb": 2.33,
+      "total_rows_loaded": 314171,
+      "sensors_loaded": 1
+    },
+    "feature_engineering": {
+      "wall_clock_sec": 0.1122,
+      "cpu_time_sec": 0.1122,
+      "peak_memory_mb": 74.36,
+      "rss_before_mb": 2074.94,
+      "rss_after_mb": 2115.79,
+      "gpu_memory_peak_mb": 2.33,
+      "sensors_processed": 1
+    },
+    "training": {
+      "wall_clock_sec": 14.0735,
+      "cpu_time_sec": 17.5128,
+      "peak_memory_mb": 66.35,
+      "rss_before_mb": 2115.8,
+      "rss_after_mb": 2259.25,
+      "gpu_memory_peak_mb": 21.54
+    },
+    "inference": {
+      "wall_clock_sec": 24.1034,
+      "cpu_time_sec": 26.4393,
+      "peak_memory_mb": 16.31,
+      "rss_before_mb": 2259.22,
+      "rss_after_mb": 2201.92,
+      "gpu_memory_peak_mb": 9.05
+    }
+  },
+  "per_sensor_results": [
+    {
+      "platform_id": "drakewell__1163",
+      "sensor_id": "avgspeed_nw",
+      "rows": 314171,
+      "train_samples": 251336,
+      "test_samples": 62835,
+      "features_count": 15,
+      "training_sec": 11.3702,
+      "epochs_completed": 6,
+      "best_epoch": 1,
+      "final_train_loss": 0.1942891776561737,
+      "final_val_loss": 0.24604105949401855,
+      "mae_mph": 2.3595,
+      "rmse_mph": 3.3613,
+      "mape_pct": 9.52,
+      "model_size_mb": 1.128,
+      "model_path": "/home/randy/Randy_PhD_Paper/new_paper_story/src/results/dell_precision_fog_gpu/20260901_112110_initial/models/drakewell__1163__avgspeed_nw.keras",
+      "x_scaler_path": "/home/randy/Randy_PhD_Paper/new_paper_story/src/results/dell_precision_fog_gpu/20260901_112110_initial/models/drakewell__1163__avgspeed_nw_x_scaler.pkl",
+      "y_scaler_path": "/home/randy/Randy_PhD_Paper/new_paper_story/src/results/dell_precision_fog_gpu/20260901_112110_initial/models/drakewell__1163__avgspeed_nw_y_scaler.pkl",
+      "single_inference_ms": 53.412,
+      "batch_inference_ms": 2364.57,
+      "sustained_288_ms": 16046.31,
+      "model_load_ms": 135.37
+    }
+  ],
+  "errors": [],
+  "data_date_from": "2020-12-01",
+  "data_date_to": "2023-12-01",
+  "resource_monitoring": {
+    "cpu_system_avg_pct": 9.43,
+    "cpu_system_max_pct": 12.3,
+    "cpu_system_min_pct": 6.0,
+    "cpu_system_readings_count": 22,
+    "cpu_process_avg_pct": 121.93,
+    "cpu_process_max_pct": 147.8,
+    "cpu_process_min_pct": 64.7,
+    "cpu_freq_avg_mhz": 1868.0,
+    "cpu_freq_max_mhz": 4160.0,
+    "cpu_freq_min_mhz": 400.0,
+    "cpu_temp_avg_c": 87.5,
+    "cpu_temp_max_c": 93.0,
+    "cpu_temp_min_c": 79.0,
+    "cpu_power_method": "RAPL",
+    "gpu_available": true,
+    "gpu_util_avg_pct": 5.39,
+    "gpu_util_max_pct": 15.0,
+    "gpu_util_min_pct": 0.0,
+    "gpu_readings_count": 28,
+    "gpu_mem_util_avg_pct": 0.0,
+    "gpu_mem_util_max_pct": 0.0,
+    "gpu_mem_used_avg_mb": 14429.14,
+    "gpu_mem_used_max_mb": 14430.0,
+    "gpu_mem_used_min_mb": 14428.0,
+    "gpu_temp_avg_c": 57.8,
+    "gpu_temp_max_c": 58.0,
+    "gpu_power_avg_w": 29.2,
+    "gpu_power_max_w": 31.9
+  },
+  "inference_results": [
+    {
+      "platform_id": "drakewell__1163",
+      "sensor_id": "avgspeed_nw",
+      "model_load_ms": 135.37,
+      "single_prediction_ms": 53.412,
+      "batch_prediction_ms": 2364.57,
+      "batch_size": 62835,
+      "sustained_288_ms": 16046.31,
+      "sustained_steps": 288,
+      "inference_rss_mb": 2201.92
+    }
+  ],
+  "aggregate_accuracy": {
+    "mean_mae_mph": 2.3595,
+    "std_mae_mph": 0.0,
+    "mean_rmse_mph": 3.3613,
+    "mean_mape_pct": 9.52
+  },
+  "total_wall_clock_sec": 38.34
+}
