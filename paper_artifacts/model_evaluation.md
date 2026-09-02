@@ -52,7 +52,7 @@ Each sensor's data is split chronologically 80/20; the final 20% of the training
 | 36 | 1429 e | 2.02 | 2.81 | 7.04 | 61,680 |
 | 37 | 1429 w | 2.00 | 2.90 | 7.04 | 60,874 |
 
-Aggregate: mean MAE 2.07 mph (median 1.92); mean MAPE 8.47% (median 7.41%). The two highest-error sensor directions (platform 1404 east/west) are markedly more variable, frequently congested locations; per-sensor error correlates strongly with speed variability (Spearman rho = 0.79 with the coefficient of variation of speed) and congestion frequency (rho = 0.82).
+Aggregate: mean MAE 2.07 mph (median 1.92); mean MAPE 8.47% (median 7.41%). The highest-error sensor directions on this test period are 1276 west (MAPE 27.6%) and 1163 southeast (16.5%). Per-sensor error correlates strongly with speed variability (Spearman rho = 0.79 with the coefficient of variation of speed) and congestion frequency (rho = 0.82). Note that the error ranking is period-dependent: on the 2024-2025 common-test-set windows (next section), platform 1404 becomes the dominant outlier (MAPE up to 86.5%), suggesting a site-specific change at that location after 2023.
 
 ## Common-test-set scenario comparison
 
