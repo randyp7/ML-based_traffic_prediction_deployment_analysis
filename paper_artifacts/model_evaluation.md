@@ -10,7 +10,9 @@ One multilayer perceptron per sensor direction (37 sensor directions; layer size
 
 Each sensor's data is split chronologically 80/20; the final 20% of the training window serves as the held-out test set (approximately the last seven months of 2023 for the three-year window). Metrics: mean absolute error (MAE, mph), root mean squared error (RMSE, mph), and mean absolute percentage error (MAPE, %). For context, each row also reports two properties of the sensor's full speed series: the coefficient of variation of speed (Speed CoV, dimensionless) and the congestion frequency (share of five-minute intervals below 50% of the sensor's 85th-percentile free-flow speed). A complementary common-test-set evaluation (identical held-out periods for all training scenarios) is summarised in the last section.
 
-## Per-sensor results (held-out test set)
+## Per-sensor results — 3-year training regime
+
+All rows in this table come from the **3-year initial training regime** (trained on 1 December 2020 to 1 December 2023); the held-out test set is the final 20% of that window, i.e. approximately mid-2023 to December 2023 (exact boundary varies slightly per sensor with data completeness). These are the published models in `trained_models_base3y/`.
 
 | # | Sensor | MAE (mph) | RMSE (mph) | MAPE (%) | Speed CoV | Congestion (%) | Test samples |
 |---|---|---|---|---|---|---|---|
@@ -52,7 +54,7 @@ Each sensor's data is split chronologically 80/20; the final 20% of the training
 | 36 | 1429 e | 2.02 | 2.81 | 7.04 | 0.108 | 0.07 | 61,680 |
 | 37 | 1429 w | 2.00 | 2.90 | 7.04 | 0.108 | 0.25 | 60,874 |
 
-Aggregate: mean MAE 2.07 mph (median 1.92); mean MAPE 8.47% (median 7.41%). The highest-error sensor directions on this test period are 1276 west (MAPE 27.6%) and 1163 southeast (16.5%). Per-sensor error correlates strongly with the two series properties in the table: on this test period, Spearman rho = 0.78 between MAPE and Speed CoV, and rho = 0.80 between MAPE and congestion frequency (rho = 0.79 and 0.82 respectively on the 2024-2025 evaluation windows, so the relationship is stable across periods). The relationship is a strong rank trend rather than a monotone rule: sensor 1173 north has the highest Speed CoV (0.437) and congestion frequency (21.4%) yet only mid-range MAPE (6.4% here, 6.3% on 2024-2025), indicating that regular, recurrent congestion patterns are learnable; the largest errors arise where variability is irregular, as at 1276 west. Note that the error ranking is period-dependent: on the 2024-2025 common-test-set windows (next section), platform 1404 becomes the dominant outlier (MAPE up to 86.5%), suggesting a site-specific change at that location after 2023.
+Aggregate: mean MAE 2.07 mph (median 1.92); mean MAPE 8.47% (median 7.41%). The highest-error sensor directions on this test period are 1276 west (MAPE 27.6%) and 1163 southeast (16.5%). Per-sensor error correlates strongly with the two series properties in the table: on this test period, Spearman rho = 0.78 between MAPE and Speed CoV, and rho = 0.80 between MAPE and congestion frequency (rho = 0.79 and 0.82 respectively for the 4.2-year cold-start regime evaluated on its own 2024-2025 held-out period, so the relationship is stable across both training regimes and test periods). The relationship is a strong rank trend rather than a monotone rule: sensor 1173 north has the highest Speed CoV (0.437) and congestion frequency (21.4%) yet only mid-range MAPE (6.4% here, 6.3% under the 4.2-year regime on 2024-2025), indicating that regular, recurrent congestion patterns are learnable; the largest errors arise where variability is irregular, as at 1276 west. Note that the error ranking is period-dependent: on the 2024-2025 common-test-set windows (next section), platform 1404 becomes the dominant outlier (MAPE up to 86.5%), suggesting a site-specific change at that location after 2023.
 
 ## Common-test-set scenario comparison
 
