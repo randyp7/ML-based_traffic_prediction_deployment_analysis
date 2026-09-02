@@ -1,6 +1,6 @@
 #!/bin/bash --login
 #===============================================================================
-# CSF3 Simulated Raspberry Pi Benchmark (CPU-only)
+# CSF3 Simulated Raspberry Pi Experiment (CPU-only)
 # Simulates RPi 4B tier: 4 cores, 4GB RAM, no GPU
 # NOTE: x86 architecture with much faster per-core performance than real RPi
 #===============================================================================
@@ -24,10 +24,10 @@
 
 module purge
 
-conda activate benchmark
+conda activate traffic_pred
 
 echo "=============================================="
-echo "CSF3 Simulated Raspberry Pi Benchmark (CPU-only)"
+echo "CSF3 Simulated Raspberry Pi Experiment (CPU-only)"
 echo "=============================================="
 echo "Date: $(date)"
 echo "Node: $(hostname)"
@@ -38,15 +38,15 @@ echo "NOTE: x86 simulation — real RPi uses ARM Cortex-A72"
 echo "=============================================="
 
 #===============================================================================
-# Run Benchmark Suite
+# Run Experiment Suite
 #===============================================================================
 
-BENCHMARK_DIR=<path-to-repository>
-cd $BENCHMARK_DIR
+REPO_DIR=<path-to-repository>
+cd $REPO_DIR
 
 echo ""
 echo "=============================================="
-echo "Starting Benchmark Suite"
+echo "Starting Experiment Suite"
 echo "Platform: csf3_rpi_sim"
 echo "Sensor tiers: tiny (1), small (10)"
 echo "Runs per tier: 3"
@@ -65,10 +65,10 @@ python -m experiments.runner \
 
 echo ""
 echo "=============================================="
-echo "Benchmark Completed"
+echo "Experiment Completed"
 echo "=============================================="
 echo "End time: $(date)"
-echo "Results saved to: $BENCHMARK_DIR/src/results/csf3_rpi_sim/"
+echo "Results saved to: $REPO_DIR/src/results/csf3_rpi_sim/"
 echo "=============================================="
 
 echo ""

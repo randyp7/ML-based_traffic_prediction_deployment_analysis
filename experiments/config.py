@@ -1,7 +1,7 @@
 """
-Benchmark configuration — single source of truth for all benchmark settings.
+Experiment configuration — single source of truth for all experiment settings.
 
-Sensor tiers from: proposals/benchmark_sensor_lists.md
+Sensor tiers from: the sensor tier selection notes
 Model architecture from: best_hyperparameters.json (BSc dissertation tuned MLP)
 """
 
@@ -12,7 +12,7 @@ from pathlib import Path
 # Paths (all relative to src/ directory)
 # ============================================================================
 
-# Base directory: the src/ folder containing this benchmark package
+# Base directory: the src/ folder containing this experiment package
 SRC_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = SRC_DIR / "data" / "parquet"
 TRAFFIC_DIR = DATA_DIR / "traffic"
@@ -26,7 +26,7 @@ PROJECT_ROOT = SRC_DIR.parent.parent.parent  # d:\git_d\dissertation
 # ============================================================================
 # Sensor Tiers — cumulative nesting: Tiny ⊂ Small ⊂ Medium ⊂ Full
 # Each sensor is a (platform_id, sensor_id) tuple
-# Source: proposals/benchmark_sensor_lists.md (verified 2026-02-13)
+# Source: the sensor tier selection notes (verified 2026-02-13)
 # ============================================================================
 
 # Tier 1: Tiny — BSc dissertation baseline (1 sensor)
@@ -101,7 +101,7 @@ EXPECTED_POINTS_PER_SENSOR = 438624  # 288/day x 1,523 days
 
 # ============================================================================
 # Model Architecture — tuned MLP from BSc dissertation (best_hyperparameters.json)
-# Fixed across all platforms for fair benchmarking (no per-platform tuning).
+# Fixed across all platforms for fair comparison (no per-platform tuning).
 # ============================================================================
 
 MODEL_LAYERS = [

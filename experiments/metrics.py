@@ -1,5 +1,5 @@
 """
-Measurement infrastructure for the benchmark system.
+Measurement infrastructure for the experiment system.
 
 Contains:
 - PhaseTimer: context manager for wall-clock, CPU time, and memory tracking
@@ -7,7 +7,7 @@ Contains:
 - GPUMonitor: background thread for GPU utilisation via nvidia-smi
 - get_system_info(): platform metadata collection
 
-CPUMonitor and GPUMonitor are extracted from model/benchmark_runner.py.
+CPUMonitor and GPUMonitor are extracted from the original prototype runner.
 """
 
 import os
@@ -30,7 +30,7 @@ from .config import MONITOR_INTERVAL
 class PhaseTimer:
     """
     Context manager that measures wall-clock time, CPU time, and peak memory
-    for a benchmark phase.
+    for a experiment phase.
 
     Usage:
         with PhaseTimer('training') as timer:
@@ -118,7 +118,7 @@ class PhaseTimer:
 
 # ============================================================================
 # CPUMonitor — background CPU monitoring
-# Extracted from model/benchmark_runner.py
+# Extracted from the original prototype runner
 # ============================================================================
 
 class CPUMonitor:
@@ -393,7 +393,7 @@ class CPUMonitor:
 
 # ============================================================================
 # GPUMonitor — background GPU monitoring via nvidia-smi
-# Extracted from model/benchmark_runner.py
+# Extracted from the original prototype runner
 # ============================================================================
 
 class GPUMonitor:
@@ -519,11 +519,11 @@ class GPUMonitor:
 
 # ============================================================================
 # System Information
-# Extracted from model/benchmark_runner.py
+# Extracted from the original prototype runner
 # ============================================================================
 
 def get_system_info():
-    """Collect system information for the benchmark."""
+    """Collect system information for the experiment."""
     info = {
         'platform_name': platform.node(),
         'os': platform.system(),

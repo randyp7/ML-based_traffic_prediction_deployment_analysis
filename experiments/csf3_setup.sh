@@ -6,24 +6,24 @@
 
 set -e
 
-echo "=== CSF3 Benchmark Setup ==="
+echo "=== CSF3 Experiment Setup ==="
 
 # Load Anaconda
 module purge
 
 # Create conda environment
-echo "Creating conda environment 'benchmark'..."
-conda create -n benchmark python=3.12 -y
+echo "Creating conda environment 'experiment'..."
+conda create -n traffic_pred python=3.12 -y
 
 # Activate
-conda activate benchmark
+conda activate traffic_pred
 
 # Install TensorFlow with CUDA support
 echo "Installing TensorFlow with GPU support..."
 pip install --no-cache-dir "tensorflow[and-cuda]"
 
-# Install benchmark dependencies
-echo "Installing benchmark dependencies..."
+# Install experiment dependencies
+echo "Installing experiment dependencies..."
 pip install --no-cache-dir pandas pyarrow scikit-learn geopy psutil
 
 # Verify GPU detection
@@ -44,5 +44,5 @@ else:
 
 echo ""
 echo "=== Setup complete ==="
-echo "You can now submit the benchmark job with:"
-echo "  sbatch <path-to-repository>/experiments/csf3_benchmark.slurm"
+echo "You can now submit the experiment job with:"
+echo "  sbatch <path-to-repository>/experiments/csf3_cloud_gpu.slurm"

@@ -1,8 +1,8 @@
 """
-Main CLI orchestrator for the cross-platform benchmark.
+Main CLI orchestrator for the cross-platform experiment.
 
 Usage:
-    # Full benchmark (all tiers, 3 runs each)
+    # Full experiment (all tiers, 3 runs each)
     python -m experiments.runner --platform dell_precision_fog_gpu --runs 3
 
     # Quick validation
@@ -36,7 +36,7 @@ from .metrics import PhaseTimer, CPUMonitor, GPUMonitor, get_system_info
 from .phases.data_loading import load_sensor_data
 from .phases.feature_eng import engineer_features_for_tier
 from .phases.training import train_single_sensor, retrain_single_sensor, prepare_data
-from .phases.inference import benchmark_inference
+from .phases.inference import evaluate_inference
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,7 +60,7 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
              inference_only=False, pretrained_dir=None,
              mode="scratch", window=None, date_from=None, date_to=None):
     """
-    Run a full benchmark for one tier in one run.
+    Run a full experiment for one tier in one run.
 
     Args:
         mode: "scratch" (default) or "retrain"
@@ -222,8 +222,8 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
     else:
         logger.info("[3/4] Skipping training (inference-only mode)")
 
-    # ---- Phase 4: Inference Benchmarks ----
-    logger.info("[4/4] Running inference benchmarks...")
+    # ---- Phase 4: Inference Experiments ----
+    logger.info("[4/4] Running inference experiments...")
     inference_dir = pretrained_dir if inference_only else models_dir
 
     try:
@@ -235,7 +235,7 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
                 X_test = X[split_index:]
 
                 try:
-                    inf_result = benchmark_inference(
+                    inf_result = evaluate_inference(
                         platform_id, sensor_id, X_test,
                         models_dir=inference_dir,
                     )
@@ -296,10 +296,10 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
     return result
 
 
-def run_benchmark(platform_name, tier_names, runs, inference_only=False, pretrained_dir=None,
+def run_experiment(platform_name, tier_names, runs, inference_only=False, pretrained_dir=None,
                   mode="scratch", window=None, date_from=None, date_to=None):
     """
-    Run the full benchmark suite across specified tiers and runs.
+    Run the full experiment suite across specified tiers and runs.
     """
     # Include mode/window in directory name for easy identification
     if mode == "retrain" and window:
@@ -411,7 +411,7 @@ def run_benchmark(platform_name, tier_names, runs, inference_only=False, pretrai
 def print_summary(summary):
     """Print a compact summary table."""
     print("\n" + "=" * 80)
-    print(f"BENCHMARK SUMMARY — {summary['platform']}")
+    print(f"EXPERIMENT SUMMARY — {summary['platform']}")
     print("=" * 80)
     print(f"{'Tier':<10} {'Runs':<6} {'Time(s)':<10} {'MAPE(%)':<10} {'Peak Mem(MB)':<12}")
     print("-" * 80)
@@ -433,7 +433,7 @@ def print_summary(summary):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Cross-platform benchmark for ML traffic prediction",
+        description="Cross-platform experiment for ML traffic prediction",
     )
     parser.add_argument(
         "--platform", type=str, required=True,
@@ -443,7 +443,7 @@ def main():
         "--tiers", type=str, nargs="+",
         default=["tiny", "small", "medium", "full"],
         choices=["tiny", "small", "medium", "full"],
-        help="Sensor tiers to benchmark (default: all)",
+        help="Sensor tiers to experiment (default: all)",
     )
     parser.add_argument(
         "--runs", type=int, default=3,
@@ -523,10 +523,10 @@ def main():
         date_to = win_cfg["date_to"]
         logger.info("Retrain mode: window=%s (%s to %s)", window, date_from, date_to)
 
-    logger.info("Benchmark starting: platform=%s, tiers=%s, runs=%d, mode=%s",
+    logger.info("Experiment starting: platform=%s, tiers=%s, runs=%d, mode=%s",
                 args.platform, args.tiers, args.runs, mode)
 
-    run_benchmark(
+    run_experiment(
         platform_name=args.platform,
         tier_names=args.tiers,
         runs=args.runs,

@@ -1,10 +1,10 @@
-# Cross-Platform Benchmark for MLP Traffic Speed Prediction
+# Cross-Platform Experiment for MLP Traffic Speed Prediction
 
-Benchmarking framework for evaluating a fixed MLP neural network across ITS (Intelligent Transport Systems) computing tiers — from cloud servers to edge RSUs.
+Evaluating framework for evaluating a fixed MLP neural network across ITS (Intelligent Transport Systems) computing tiers — from cloud servers to edge RSUs.
 
 ## Overview
 
-This benchmark measures **training time, inference latency, resource usage, and prediction accuracy** of a fixed-architecture MLP model across different hardware platforms representing real ITS deployment tiers:
+This experiment measures **training time, inference latency, resource usage, and prediction accuracy** of a fixed-architecture MLP model across different hardware platforms representing real ITS deployment tiers:
 
 | Platform | Tier | Example Hardware |
 |---|---|---|
@@ -24,18 +24,18 @@ src/
 │   ├── runner.py                 # Main CLI orchestrator (4-phase pipeline)
 │   ├── data_export.py            # One-time InfluxDB -> Parquet exporter
 │   ├── metrics.py                # PhaseTimer, CPU/GPU monitors, system info
-│   ├── requirements_benchmark.txt
+│   ├── requirements.txt
 │   └── phases/
 │       ├── data_loading.py       # Load Parquet files for a sensor tier
 │       ├── feature_eng.py        # Feature engineering wrapper
 │       ├── training.py           # Model training (fixed architecture)
-│       └── inference.py          # Inference benchmarking
+│       └── inference.py          # Inference evaluation
 ├── data/
 │   └── parquet/                  # Pre-exported data (not in git)
 │       ├── manifest.json
 │       ├── events.parquet
 │       └── traffic/              # 37 sensor Parquet files
-└── results/                      # Benchmark outputs (per-platform)
+└── results/                      # Experiment outputs (per-platform)
 
 model/                            # Shared modules from main project
 ├── data_loader.py                # InfluxDB data loader (used by data_export)
@@ -51,7 +51,7 @@ tools/
 ### 1. Install Dependencies
 
 ```bash
-pip install -r experiments/requirements_benchmark.txt
+pip install -r experiments/requirements.txt
 ```
 
 ### 2. Get the Data
@@ -68,7 +68,7 @@ src/data/parquet/
     └── ... (37 files total, ~1.5 GB)
 ```
 
-### 3. Run the Benchmark
+### 3. Run the Experiment
 
 ```bash
 
@@ -76,7 +76,7 @@ src/data/parquet/
 # Quick validation (1 sensor, 1 run)
 python -m experiments.runner --platform <PLATFORM_NAME> --tiers tiny --runs 1
 
-# Full benchmark (all tiers, 3 runs)
+# Full experiment (all tiers, 3 runs)
 python -m experiments.runner --platform <PLATFORM_NAME> --runs 3
 
 # Specific tiers
@@ -99,7 +99,7 @@ Progressive scaling with cumulative nesting (Tiny ⊂ Small ⊂ Medium ⊂ Full)
 
 Data covers **2020-12-01 to 2025-02-01** (~4.2 years) at 5-minute intervals (288 points/day).
 
-## Benchmark Pipeline (4 Phases)
+## Experiment Pipeline (4 Phases)
 
 1. **Data Loading** — Read pre-exported Parquet files, validate against manifest
 2. **Feature Engineering** — Time features, event features (15 features total)

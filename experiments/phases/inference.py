@@ -1,5 +1,5 @@
 """
-Phase 4: Inference benchmarks — model load time, single/batch/sustained prediction latency.
+Phase 4: Inference experiments — model load time, single/batch/sustained prediction latency.
 """
 
 import os
@@ -14,7 +14,7 @@ from ..config import SINGLE_INFERENCE_REPEATS, SUSTAINED_INFERENCE_STEPS, sensor
 logger = logging.getLogger(__name__)
 
 
-def benchmark_inference(platform_id, sensor_id, X_test, models_dir=None,
+def evaluate_inference(platform_id, sensor_id, X_test, models_dir=None,
                         model_path=None, x_scaler_path=None, y_scaler_path=None):
     """
     Run all inference scenarios for one sensor.

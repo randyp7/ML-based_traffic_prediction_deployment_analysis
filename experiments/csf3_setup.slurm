@@ -1,8 +1,8 @@
 #!/bin/bash --login
 #===============================================================================
 # CSF3 Environment Setup Job Script
-# Creates conda environment with TensorFlow GPU for benchmark
-# Run ONCE before submitting the benchmark job
+# Creates conda environment with TensorFlow GPU for experiment
+# Run ONCE before submitting the experiment job
 #===============================================================================
 
 ### GPU Partition - A100 needed to verify GPU detection during setup
@@ -30,7 +30,7 @@ module load libs/cuda
 module load apps/binapps/conda/miniforge3/25.9.1
 
 echo "=============================================="
-echo "CSF3 Benchmark Environment Setup"
+echo "CSF3 Experiment Environment Setup"
 echo "=============================================="
 echo "Date: $(date)"
 echo "Node: $(hostname)"
@@ -42,15 +42,15 @@ echo "=============================================="
 #===============================================================================
 
 echo ""
-echo "Creating conda environment 'benchmark' with Python 3.12..."
-conda create -n benchmark python=3.12 -y
+echo "Creating conda environment 'experiment' with Python 3.12..."
+conda create -n traffic_pred python=3.12 -y
 
-conda activate benchmark
+conda activate traffic_pred
 
 echo "Installing TensorFlow with GPU support..."
 pip install --no-cache-dir "tensorflow[and-cuda]"
 
-echo "Installing benchmark dependencies..."
+echo "Installing experiment dependencies..."
 pip install --no-cache-dir pandas pyarrow scikit-learn geopy psutil
 
 #===============================================================================
@@ -84,8 +84,8 @@ echo "=============================================="
 echo "Setup Complete"
 echo "=============================================="
 echo "End time: $(date)"
-echo "Next step: submit the benchmark job with:"
-echo "  sbatch <path-to-repository>/experiments/csf3_benchmark.slurm"
+echo "Next step: submit the experiment job with:"
+echo "  sbatch <path-to-repository>/experiments/csf3_cloud_gpu.slurm"
 echo "=============================================="
 
 conda deactivate

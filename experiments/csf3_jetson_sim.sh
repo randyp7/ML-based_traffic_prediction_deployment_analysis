@@ -1,6 +1,6 @@
 #!/bin/bash --login
 #===============================================================================
-# CSF3 Simulated Jetson Xavier NX Benchmark
+# CSF3 Simulated Jetson Xavier NX Experiment
 # Simulates edge-intelligent tier: 6 cores, 8GB RAM, 1 GPU (8GB VRAM)
 # NOTE: x86 architecture — actual Jetson uses ARM Carmel cores
 #===============================================================================
@@ -26,10 +26,10 @@
 module purge
 module load libs/cuda
 
-conda activate benchmark
+conda activate traffic_pred
 
 echo "=============================================="
-echo "CSF3 Simulated Jetson Xavier NX Benchmark"
+echo "CSF3 Simulated Jetson Xavier NX Experiment"
 echo "=============================================="
 echo "Date: $(date)"
 echo "Node: $(hostname)"
@@ -44,15 +44,15 @@ echo "=============================================="
 python -c "import tensorflow as tf; gpus = tf.config.list_physical_devices('GPU'); print(f'TensorFlow GPUs detected: {len(gpus)}'); [print(f'  - {g.name}') for g in gpus]"
 
 #===============================================================================
-# Run Benchmark Suite
+# Run Experiment Suite
 #===============================================================================
 
-BENCHMARK_DIR=<path-to-repository>
-cd $BENCHMARK_DIR
+REPO_DIR=<path-to-repository>
+cd $REPO_DIR
 
 echo ""
 echo "=============================================="
-echo "Starting Benchmark Suite"
+echo "Starting Experiment Suite"
 echo "Platform: csf3_jetson_sim"
 echo "Sensor tiers: tiny (1), small (10), medium (27), full (37)"
 echo "Runs per tier: 3"
@@ -72,10 +72,10 @@ python -m experiments.runner \
 
 echo ""
 echo "=============================================="
-echo "Benchmark Completed"
+echo "Experiment Completed"
 echo "=============================================="
 echo "End time: $(date)"
-echo "Results saved to: $BENCHMARK_DIR/src/results/csf3_jetson_sim/"
+echo "Results saved to: $REPO_DIR/src/results/csf3_jetson_sim/"
 echo "=============================================="
 
 echo ""

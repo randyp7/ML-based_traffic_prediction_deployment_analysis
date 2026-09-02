@@ -1,6 +1,6 @@
-# Observed Monitoring Metrics — ML-Based Traffic Speed Prediction Benchmark
+# Observed Monitoring Metrics — ML-Based Traffic Speed Prediction
 
-Companion document to the paper "Cloud-Fog-Edge Deployment of ML-Based Traffic Speed Prediction: An Empirical Analysis of Performance, Cost, and Scalability". It reports the resource-utilisation, thermal, and power metrics observed during the benchmark experiments, which the paper references but does not present in full.
+Companion document to the paper "Cloud-Fog-Edge Deployment of ML-Based Traffic Speed Prediction: An Empirical Analysis of Performance, Cost, and Scalability". It reports the resource-utilisation, thermal, and power metrics observed during the experiments, which the paper references but does not present in full.
 
 ## Collection methodology
 
@@ -8,7 +8,7 @@ A background monitoring process sampled system metrics every 0.5 seconds during 
 
 ## Reliability caveats (important)
 
-1. **Attribution.** CPU-system and GPU readings are whole-node/whole-device: on shared or virtualised platforms (CSF3 nodes, AWS EC2) they may include activity not attributable to the benchmark process. They should be read as qualitative context, not precise per-process measurements; repetition of runs does not remove this systematic attribution error. Only the Dell Precision platform (dedicated hardware, no virtualisation) provides fully representative CPU and GPU readings.
+1. **Attribution.** CPU-system and GPU readings are whole-node/whole-device: on shared or virtualised platforms (CSF3 nodes, AWS EC2) they may include activity not attributable to the experiment process. They should be read as qualitative context, not precise per-process measurements; repetition of runs does not remove this systematic attribution error. Only the Dell Precision platform (dedicated hardware, no virtualisation) provides fully representative CPU and GPU readings.
 2. **Power.** CPU power via Intel RAPL was accessible only on the Dell Precision (average CPU power 10-46 W across tiers; 0.1-8.7 Wh per training run). On CSF3 the powercap energy counters are root-restricted; AWS EC2 does not expose hardware power to guests. GPU power (nvidia-smi) is available on the GPU platforms.
 3. **Diagnostic value.** The telemetry proved essential for outlier attribution: inflated fog-platform runs in an early campaign showed mean CPU clocks of 0.5-1.6 GHz at low package temperature — the signature of an OS power-saving state, not thermal throttling or contention — and were re-measured on mains power. On AWS t2.medium, elevated steal time and run-position-dependent slowdowns identified burstable CPU-credit exhaustion.
 

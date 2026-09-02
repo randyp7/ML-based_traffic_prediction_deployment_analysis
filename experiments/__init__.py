@@ -1,1 +1,1 @@
-"""Cross-platform benchmark system for ML-based traffic prediction."""
+"""Cross-platform experiment system for ML-based traffic prediction."""

@@ -85,7 +85,7 @@ def export_all(sensors=None):
     # Create output directories
     TRAFFIC_DIR.mkdir(parents=True, exist_ok=True)
 
-    print(f"Benchmark Data Export")
+    print(f"Experiment Data Export")
     print(f"  Date range: {DATE_RANGE_START} to {DATE_RANGE_END}")
     print(f"  Sensors to export: {len(sensors)}")
     print(f"  Output: {DATA_DIR}")
@@ -168,7 +168,7 @@ def verify_manifest():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Export InfluxDB data to Parquet for benchmark")
+    parser = argparse.ArgumentParser(description="Export InfluxDB data to Parquet for experiment")
     parser.add_argument("--sensor", nargs=2, metavar=("PLATFORM_ID", "SENSOR_ID"),
                         help="Export a single sensor (e.g., --sensor drakewell__1163 avgspeed_nw)")
     parser.add_argument("--verify", action="store_true",

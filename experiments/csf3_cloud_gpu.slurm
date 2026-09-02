@@ -1,7 +1,7 @@
 #!/bin/bash --login
 #===============================================================================
-# CSF3 GPU Benchmark Job Script
-# Sets up environment (if needed) and runs the full benchmark suite
+# CSF3 GPU Experiment Job Script
+# Sets up environment (if needed) and runs the full experiment suite
 # Fog-matched resources: A100 capped at 16GB VRAM, 12 cores, 32GB RAM
 #===============================================================================
 
@@ -15,9 +15,9 @@
 #SBATCH --mem=32G            # 32GB RAM (matches fog)
 
 ### Job identification
-#SBATCH -J benchmark_csf     # Job name
-#SBATCH -o benchmark_csf_%j.out  # Standard output log
-#SBATCH -e benchmark_csf_%j.err  # Standard error log
+#SBATCH -J traffic_pred     # Job name
+#SBATCH -o experiment_csf_%j.out  # Standard output log
+#SBATCH -e experiment_csf_%j.err  # Standard error log
 
 #===============================================================================
 # Environment Setup
@@ -27,7 +27,7 @@ module purge
 module load libs/cuda
 
 echo "=============================================="
-echo "CSF3 Benchmark Job Started"
+echo "CSF3 Experiment Job Started"
 echo "=============================================="
 echo "Date: $(date)"
 echo "Node: $(hostname)"
@@ -38,34 +38,34 @@ echo "GPU Memory Limit: 16GB (fog-matched)"
 echo "=============================================="
 
 # Create conda environment if it doesn't exist
-if ! conda info --envs | grep -q "benchmark"; then
+if ! conda info --envs | grep -q "experiment"; then
     echo ""
-    echo "Creating conda environment 'benchmark'..."
-    conda create -n benchmark python=3.12 -y
-    conda activate benchmark
+    echo "Creating conda environment 'experiment'..."
+    conda create -n traffic_pred python=3.12 -y
+    conda activate traffic_pred
     echo "Installing TensorFlow with GPU support..."
     pip install --no-cache-dir "tensorflow[and-cuda]"
-    echo "Installing benchmark dependencies..."
+    echo "Installing experiment dependencies..."
     pip install --no-cache-dir pandas pyarrow scikit-learn geopy psutil
     echo "Environment setup complete."
 else
-    echo "Conda environment 'benchmark' already exists, activating..."
-    conda activate benchmark
+    echo "Conda environment 'experiment' already exists, activating..."
+    conda activate traffic_pred
 fi
 
 # Verify GPU availability
 python -c "import tensorflow as tf; gpus = tf.config.list_physical_devices('GPU'); print(f'TensorFlow GPUs detected: {len(gpus)}'); [print(f'  - {g.name}') for g in gpus]"
 
 #===============================================================================
-# Run Benchmark Suite
+# Run Experiment Suite
 #===============================================================================
 
-BENCHMARK_DIR=<path-to-repository>
-cd $BENCHMARK_DIR
+REPO_DIR=<path-to-repository>
+cd $REPO_DIR
 
 echo ""
 echo "=============================================="
-echo "Starting Full Benchmark Suite"
+echo "Starting Full Experiment Suite"
 echo "Platform: csf3_cloud_gpu"
 echo "Sensor tiers: tiny (1), small (10), medium (27), full (37)"
 echo "Runs per tier: 3"
@@ -86,10 +86,10 @@ python -m experiments.runner \
 
 echo ""
 echo "=============================================="
-echo "Benchmark Completed"
+echo "Experiment Completed"
 echo "=============================================="
 echo "End time: $(date)"
-echo "Results saved to: $BENCHMARK_DIR/src/results/csf3_cloud_gpu/"
+echo "Results saved to: $REPO_DIR/src/results/csf3_cloud_gpu/"
 echo "=============================================="
 
 # List generated result files
