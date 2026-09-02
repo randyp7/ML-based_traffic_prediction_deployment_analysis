@@ -29,11 +29,13 @@ import numpy as np
 from .config import (
     TIERS, PLATFORMS, RESULTS_DIR, RANDOM_SEED,
     sensor_key, TRAIN_TEST_SPLIT,
+    RETRAIN_WINDOWS, RETRAIN_WINDOWS_PROGRESSIVE,
+    INITIAL_TRAIN_DATE_FROM, INITIAL_TRAIN_DATE_TO,
 )
 from .metrics import PhaseTimer, CPUMonitor, GPUMonitor, get_system_info
 from .phases.data_loading import load_sensor_data
 from .phases.feature_eng import engineer_features_for_tier
-from .phases.training import train_single_sensor, prepare_data
+from .phases.training import train_single_sensor, retrain_single_sensor, prepare_data
 from .phases.inference import benchmark_inference
 
 logging.basicConfig(
@@ -55,9 +57,16 @@ def set_seeds():
 
 
 def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
-             inference_only=False, pretrained_dir=None):
+             inference_only=False, pretrained_dir=None,
+             mode="scratch", window=None, date_from=None, date_to=None):
     """
     Run a full benchmark for one tier in one run.
+
+    Args:
+        mode: "scratch" (default) or "retrain"
+        window: Window ID ("W3", "W6", "W12") when mode=retrain
+        date_from: Optional date filter for data loading
+        date_to: Optional date filter for data loading
 
     Returns:
         dict: Tier-run results (JSON-serialisable)
@@ -68,7 +77,7 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
     experiment_id = f"{platform_name}-{tier_name}-run{run_id}"
 
     logger.info("=" * 60)
-    logger.info("Starting: %s (%d sensors)", experiment_id, len(sensor_list))
+    logger.info("Starting: %s (%d sensors) [mode=%s]", experiment_id, len(sensor_list), mode)
     logger.info("=" * 60)
 
     result = {
@@ -79,16 +88,33 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
         "sensor_count": len(sensor_list),
         "run_id": run_id,
         "timestamp": datetime.now().isoformat(),
+        "mode": mode,
         "phases": {},
         "per_sensor_results": [],
         "errors": [],
     }
 
+    # Add retrain-specific metadata
+    if mode == "retrain" and window:
+        result["update_window"] = window
+        result["window_type"] = "progressive" if window.startswith("PW") else "recent"
+        result["window_date_from"] = date_from
+        result["window_date_to"] = date_to
+        result["pretrained_dir"] = pretrained_dir
+    if date_from or date_to:
+        result["data_date_from"] = date_from
+        result["data_date_to"] = date_to
+
     # ---- Phase 1: Data Loading ----
-    logger.info("[1/4] Loading Parquet data...")
+    if date_from or date_to:
+        logger.info("[1/4] Loading Parquet data (filtered: %s to %s)...", date_from, date_to)
+    else:
+        logger.info("[1/4] Loading Parquet data...")
     try:
         with PhaseTimer("data_loading") as dt:
-            sensor_data, events_df = load_sensor_data(sensor_list)
+            sensor_data, events_df = load_sensor_data(
+                sensor_list, date_from=date_from, date_to=date_to,
+            )
 
         total_rows = sum(len(df) for df in sensor_data.values())
         phase_info = dt.to_dict()
@@ -137,7 +163,7 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
 
     # ---- Phase 3: Training ----
     if not inference_only:
-        logger.info("[3/4] Training models...")
+        logger.info("[3/4] Training models (%s mode)...", mode)
         cpu_monitor = CPUMonitor()
         gpu_monitor = GPUMonitor()
         cpu_monitor.start()
@@ -147,9 +173,21 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
             with PhaseTimer("training") as tt:
                 for (platform_id, sensor_id), (X, y, dates) in fe_results.items():
                     try:
-                        sensor_result = train_single_sensor(
-                            X, y, platform_id, sensor_id, models_dir,
-                        )
+                        if mode == "retrain" and pretrained_dir:
+                            key = sensor_key(platform_id, sensor_id)
+                            pt_model = os.path.join(pretrained_dir, "models", f"{key}.keras")
+                            pt_x_scaler = os.path.join(pretrained_dir, "models", f"{key}_x_scaler.pkl")
+                            pt_y_scaler = os.path.join(pretrained_dir, "models", f"{key}_y_scaler.pkl")
+                            sensor_result = retrain_single_sensor(
+                                X, y, platform_id, sensor_id, models_dir,
+                                pretrained_model_path=pt_model,
+                                pretrained_x_scaler_path=pt_x_scaler,
+                                pretrained_y_scaler_path=pt_y_scaler,
+                            )
+                        else:
+                            sensor_result = train_single_sensor(
+                                X, y, platform_id, sensor_id, models_dir,
+                            )
                         result["per_sensor_results"].append(sensor_result)
                     except (MemoryError, Exception) as e:
                         import tensorflow as tf
@@ -258,12 +296,20 @@ def run_tier(tier_name, sensor_list, run_id, platform_name, run_dir,
     return result
 
 
-def run_benchmark(platform_name, tier_names, runs, inference_only=False, pretrained_dir=None):
+def run_benchmark(platform_name, tier_names, runs, inference_only=False, pretrained_dir=None,
+                  mode="scratch", window=None, date_from=None, date_to=None):
     """
     Run the full benchmark suite across specified tiers and runs.
     """
+    # Include mode/window in directory name for easy identification
+    if mode == "retrain" and window:
+        dir_suffix = f"retrain_{window}"
+    elif date_from and date_to:
+        dir_suffix = "initial"
+    else:
+        dir_suffix = "scratch"
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    run_dir = RESULTS_DIR / platform_name / timestamp
+    run_dir = RESULTS_DIR / platform_name / f"{timestamp}_{dir_suffix}"
     run_dir.mkdir(parents=True, exist_ok=True)
 
     # Save system info
@@ -296,6 +342,10 @@ def run_benchmark(platform_name, tier_names, runs, inference_only=False, pretrai
                 run_dir=str(run_dir),
                 inference_only=inference_only,
                 pretrained_dir=pretrained_dir,
+                mode=mode,
+                window=window,
+                date_from=date_from,
+                date_to=date_to,
             )
 
             # Save per-tier-run result
@@ -407,14 +457,74 @@ def main():
         "--pretrained-dir", type=str, default=None,
         help="Directory containing pretrained .keras models and .pkl scalers",
     )
+    parser.add_argument(
+        "--gpu-memory-mb", type=int, default=None,
+        help="Limit GPU memory to this many MB (e.g. 16384 for 16GB)",
+    )
+    parser.add_argument(
+        "--mode", type=str, default="scratch", choices=["scratch", "retrain"],
+        help="Training mode: scratch (default) or retrain (warm-start fine-tuning)",
+    )
+    parser.add_argument(
+        "--window", type=str, default=None,
+        choices=["W3", "W6", "W12", "PW3", "PW6", "PW12"],
+        help="Re-training window: W3/W6/W12 (recent) or PW3/PW6/PW12 (progressive)",
+    )
+    parser.add_argument(
+        "--initial-only", action="store_true",
+        help="Train only on the initial 3-year date range (Dec 2020 - Dec 2023)",
+    )
 
     args = parser.parse_args()
 
     if args.inference_only and not args.pretrained_dir:
         parser.error("--inference-only requires --pretrained-dir")
+    if args.mode == "retrain" and not args.window:
+        parser.error("--mode=retrain requires --window (W3, W6, W12, PW3, PW6, or PW12)")
+    if args.mode == "retrain" and not args.pretrained_dir:
+        parser.error("--mode=retrain requires --pretrained-dir")
 
-    logger.info("Benchmark starting: platform=%s, tiers=%s, runs=%d",
-                args.platform, args.tiers, args.runs)
+    # Apply GPU memory limit before any TF operations
+    if args.gpu_memory_mb:
+        try:
+            import tensorflow as tf
+            gpus = tf.config.list_physical_devices("GPU")
+            if gpus:
+                tf.config.set_logical_device_configuration(
+                    gpus[0],
+                    [tf.config.LogicalDeviceConfiguration(
+                        memory_limit=args.gpu_memory_mb
+                    )],
+                )
+                logger.info("GPU memory limited to %d MB", args.gpu_memory_mb)
+            else:
+                logger.warning("--gpu-memory-mb specified but no GPU found")
+        except Exception as e:
+            logger.error("Failed to set GPU memory limit: %s", e)
+
+    # Determine date filters based on mode
+    date_from = None
+    date_to = None
+    mode = args.mode
+    window = args.window
+
+    if args.initial_only:
+        date_from = INITIAL_TRAIN_DATE_FROM
+        date_to = INITIAL_TRAIN_DATE_TO
+        logger.info("Initial-only mode: training on %s to %s", date_from, date_to)
+    elif mode == "retrain" and window:
+        if window in RETRAIN_WINDOWS:
+            win_cfg = RETRAIN_WINDOWS[window]
+        elif window in RETRAIN_WINDOWS_PROGRESSIVE:
+            win_cfg = RETRAIN_WINDOWS_PROGRESSIVE[window]
+        else:
+            parser.error(f"Unknown window: {window}")
+        date_from = win_cfg["date_from"]
+        date_to = win_cfg["date_to"]
+        logger.info("Retrain mode: window=%s (%s to %s)", window, date_from, date_to)
+
+    logger.info("Benchmark starting: platform=%s, tiers=%s, runs=%d, mode=%s",
+                args.platform, args.tiers, args.runs, mode)
 
     run_benchmark(
         platform_name=args.platform,
@@ -422,6 +532,10 @@ def main():
         runs=args.runs,
         inference_only=args.inference_only,
         pretrained_dir=args.pretrained_dir,
+        mode=mode,
+        window=window,
+        date_from=date_from,
+        date_to=date_to,
     )
 
 

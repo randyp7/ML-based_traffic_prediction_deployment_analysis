@@ -2,14 +2,14 @@
 Benchmark configuration — single source of truth for all benchmark settings.
 
 Sensor tiers from: proposals/benchmark_sensor_lists.md
-Model architecture from: model/benchmark_runner.py (skip-tuning branch)
+Model architecture from: best_hyperparameters.json (BSc dissertation tuned MLP)
 """
 
 import os
 from pathlib import Path
 
 # ============================================================================
-# Paths (all relative to the repository root)
+# Paths (all relative to src/ directory)
 # ============================================================================
 
 # Base directory: the src/ folder containing this benchmark package
@@ -100,15 +100,18 @@ BATCH_DAYS = 7  # InfluxDB batch query window
 EXPECTED_POINTS_PER_SENSOR = 438624  # 288/day x 1,523 days
 
 # ============================================================================
-# Model Architecture — fixed across all platforms (no tuning)
+# Model Architecture — tuned MLP from BSc dissertation (best_hyperparameters.json)
+# Fixed across all platforms for fair benchmarking (no per-platform tuning).
 # ============================================================================
 
 MODEL_LAYERS = [
-    {"units": 128, "activation": "relu", "dropout": 0.2},
-    {"units": 128, "activation": "relu", "dropout": 0.2},
-    {"units": 64, "activation": "relu", "dropout": 0.1},
+    {"units": 96,  "activation": "relu", "dropout": 0.3},   # input layer
+    {"units": 256, "activation": "relu", "dropout": 0.2},   # hidden 1
+    {"units": 256, "activation": "relu", "dropout": 0.1},   # hidden 2
+    {"units": 96,  "activation": "relu", "dropout": 0.3},   # hidden 3
+    {"units": 256, "activation": "relu", "dropout": 0.0},   # hidden 4
 ]
-MODEL_OPTIMIZER = "adam"
+MODEL_OPTIMIZER = "rmsprop"
 MODEL_LOSS = "mse"
 
 # ============================================================================
@@ -145,13 +148,21 @@ MS_TO_MPH = 0.621371
 # ============================================================================
 
 PLATFORMS = {
+    # Cloud tier
     "csf3_cloud_gpu": "cloud_baseline",
+    # Fog tier
     "dell_precision_fog_gpu": "fog_accelerator",
     "dell_precision_fog_cpu": "fog_standard",
     "hp_workstation_fog": "fog_standard",
+    # Edge tier
     "hp_elitebook_edge": "edge_intelligent",
     "dell_xps_edge": "edge_intelligent",
     "aws_t2_rsu": "edge_rsu",
+    # CSF3 simulated tiers (resource-constrained)
+    "csf3_jetson_sim": "edge_intelligent",
+    "csf3_edge_rsu_sim": "edge_rsu",
+    "csf3_rpi_sim": "edge_constrained",
+    # Development
     "local": "development",
 }
 
@@ -160,6 +171,28 @@ PLATFORMS = {
 # ============================================================================
 
 MONITOR_INTERVAL = 0.5  # seconds between CPU/GPU readings
+
+# ============================================================================
+# Re-training Configuration
+# ============================================================================
+
+# Initial training date range (3 years of data for base model)
+INITIAL_TRAIN_DATE_FROM = "2020-12-01"
+INITIAL_TRAIN_DATE_TO = "2023-12-01"
+
+# Re-training update windows (fine-tune base model on recent data)
+RETRAIN_WINDOWS = {
+    "W3":  {"date_from": "2024-12-01", "date_to": "2025-02-01"},
+    "W6":  {"date_from": "2024-09-01", "date_to": "2025-02-01"},
+    "W12": {"date_from": "2024-03-01", "date_to": "2025-02-01"},
+}
+
+# Progressive windows — start immediately after base training (no gap)
+RETRAIN_WINDOWS_PROGRESSIVE = {
+    "PW3":  {"date_from": "2023-12-01", "date_to": "2024-03-01"},
+    "PW6":  {"date_from": "2023-12-01", "date_to": "2024-06-01"},
+    "PW12": {"date_from": "2023-12-01", "date_to": "2024-12-01"},
+}
 
 
 def sensor_filename(platform_id, sensor_id):

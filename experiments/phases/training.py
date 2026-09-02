@@ -1,8 +1,9 @@
 """
 Phase 3: Model training — build, train, and evaluate one model per sensor.
 
-Uses the fixed benchmark MLP architecture (128-128-64-1 with dropout).
-No hyperparameter tuning — deterministic across all platforms.
+Uses the tuned MLP architecture from the BSc dissertation (96-256-256-96-256
+with ReLU activation and RMSprop optimiser, per Table 5 in Silva, 2025).
+Fixed across all platforms — no per-platform tuning.
 """
 
 import os
@@ -22,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def build_model(input_dim):
-    """Build the fixed benchmark MLP architecture."""
+    """Build the tuned MLP architecture from BSc dissertation."""
     import tensorflow as tf
     from tensorflow.keras.models import Sequential
     from tensorflow.keras.layers import Dense, Dropout, Input
@@ -164,6 +165,140 @@ def train_single_sensor(X, y, platform_id, sensor_id, models_dir):
 
     logger.info(
         "  %s: %d epochs, MAPE=%.2f%%, MAE=%.2f mph, time=%.1fs",
+        key, epochs_completed, mape * 100, mae, training_sec,
+    )
+
+    return result
+
+
+def retrain_single_sensor(X, y, platform_id, sensor_id, models_dir,
+                          pretrained_model_path, pretrained_x_scaler_path,
+                          pretrained_y_scaler_path):
+    """
+    Fine-tune a pre-trained model on new data window.
+
+    Loads the pre-trained .keras model and REUSES the original scalers from
+    the base model (transform only, no re-fitting). This avoids scaler mismatch
+    where the model's weights encode the original scaler's statistics.
+
+    Args:
+        X: Feature array (unscaled) from update window
+        y: Target array (unscaled, m/s) from update window
+        platform_id: Sensor platform identifier
+        sensor_id: Sensor direction identifier
+        models_dir: Path to save fine-tuned .keras model and .pkl scalers
+        pretrained_model_path: Path to the pre-trained .keras model
+        pretrained_x_scaler_path: Path to pre-trained x_scaler .pkl
+        pretrained_y_scaler_path: Path to pre-trained y_scaler .pkl
+
+    Returns:
+        dict with training results, accuracy metrics, and file paths
+    """
+    import tensorflow as tf
+    from tensorflow.keras.callbacks import EarlyStopping
+
+    np.random.seed(RANDOM_SEED)
+    tf.random.set_seed(RANDOM_SEED)
+
+    key = sensor_key(platform_id, sensor_id)
+
+    # Load original scalers from base model (no re-fitting)
+    x_scaler = joblib.load(pretrained_x_scaler_path)
+    y_scaler = joblib.load(pretrained_y_scaler_path)
+
+    # Transform update window data using original scalers
+    X_scaled = x_scaler.transform(X)
+    y_scaled = y_scaler.transform(y)
+
+    # 80/20 chronological split (same as prepare_data)
+    split_index = int(len(X_scaled) * TRAIN_TEST_SPLIT)
+    X_train = X_scaled[:split_index]
+    X_test = X_scaled[split_index:]
+    y_train = y_scaled[:split_index]
+    y_test = y_scaled[split_index:]
+
+    # Load pre-trained model instead of building from scratch
+    model = tf.keras.models.load_model(pretrained_model_path)
+
+    # Re-compile to ensure optimizer state is fresh for fine-tuning
+    model.compile(optimizer=MODEL_OPTIMIZER, loss=MODEL_LOSS)
+
+    # Train (same config as scratch training)
+    early_stopping = EarlyStopping(
+        monitor='val_loss',
+        patience=PATIENCE,
+        restore_best_weights=True,
+        verbose=0,
+    )
+
+    import time
+    t0 = time.perf_counter()
+    history = model.fit(
+        X_train, y_train,
+        epochs=EPOCHS,
+        batch_size=BATCH_SIZE,
+        validation_split=VALIDATION_SPLIT,
+        callbacks=[early_stopping],
+        verbose=0,
+    )
+    training_sec = time.perf_counter() - t0
+
+    epochs_completed = len(history.history['loss'])
+    val_losses = history.history['val_loss']
+    best_epoch = int(np.argmin(val_losses) + 1)
+
+    # Evaluate
+    y_pred = model.predict(X_test, verbose=0)
+    y_test_unscaled = y_scaler.inverse_transform(y_test).flatten()
+    y_pred_unscaled = y_scaler.inverse_transform(y_pred.reshape(-1, 1)).flatten()
+
+    # Convert m/s to mph
+    y_test_mph = y_test_unscaled * MS_TO_MPH
+    y_pred_mph = y_pred_unscaled * MS_TO_MPH
+
+    from sklearn.metrics import mean_absolute_error, mean_squared_error, mean_absolute_percentage_error
+    mae = mean_absolute_error(y_test_mph, y_pred_mph)
+    mse = mean_squared_error(y_test_mph, y_pred_mph)
+    mape = mean_absolute_percentage_error(y_test_mph, y_pred_mph)
+    rmse = np.sqrt(mse)
+
+    # Save fine-tuned model and original scalers (unchanged)
+    os.makedirs(models_dir, exist_ok=True)
+    model_path = os.path.join(models_dir, f"{key}.keras")
+    x_scaler_path = os.path.join(models_dir, f"{key}_x_scaler.pkl")
+    y_scaler_path = os.path.join(models_dir, f"{key}_y_scaler.pkl")
+
+    model.save(model_path)
+    joblib.dump(x_scaler, x_scaler_path)
+    joblib.dump(y_scaler, y_scaler_path)
+
+    model_size_mb = os.path.getsize(model_path) / (1024 ** 2)
+
+    result = {
+        "platform_id": platform_id,
+        "sensor_id": sensor_id,
+        "rows": len(X),
+        "train_samples": len(X_train),
+        "test_samples": len(X_test),
+        "features_count": X_train.shape[1],
+        "training_sec": round(training_sec, 4),
+        "epochs_completed": epochs_completed,
+        "best_epoch": best_epoch,
+        "final_train_loss": float(history.history['loss'][-1]),
+        "final_val_loss": float(val_losses[-1]),
+        "mae_mph": round(mae, 4),
+        "rmse_mph": round(rmse, 4),
+        "mape_pct": round(mape * 100, 2),
+        "model_size_mb": round(model_size_mb, 3),
+        "model_path": model_path,
+        "x_scaler_path": x_scaler_path,
+        "y_scaler_path": y_scaler_path,
+        "pretrained_model_path": pretrained_model_path,
+        "scaler_strategy": "original",
+    }
+
+    logger.info(
+        "  %s [retrain]: %d epochs, MAPE=%.2f%%, MAE=%.2f mph, time=%.1fs",
         key, epochs_completed, mape * 100, mae, training_sec,
     )
 

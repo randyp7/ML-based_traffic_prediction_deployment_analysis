@@ -12,7 +12,8 @@ from ..config import TRAFFIC_DIR, EVENTS_FILE, MANIFEST_FILE, sensor_filename
 logger = logging.getLogger(__name__)
 
 
-def load_sensor_data(sensor_list, traffic_dir=None, events_file=None):
+def load_sensor_data(sensor_list, traffic_dir=None, events_file=None,
+                     date_from=None, date_to=None):
     """
     Load raw traffic Parquet files for the given sensor tier + events.
 
@@ -20,6 +21,8 @@ def load_sensor_data(sensor_list, traffic_dir=None, events_file=None):
         sensor_list: list of (platform_id, sensor_id) tuples
         traffic_dir: Path to traffic parquet directory (default: config.TRAFFIC_DIR)
         events_file: Path to events parquet file (default: config.EVENTS_FILE)
+        date_from: Optional start date string (inclusive) to filter data, e.g. "2024-09-01"
+        date_to: Optional end date string (exclusive) to filter data, e.g. "2025-02-01"
 
     Returns:
         sensor_data: dict mapping (platform_id, sensor_id) → pd.DataFrame
@@ -51,6 +54,17 @@ def load_sensor_data(sensor_list, traffic_dir=None, events_file=None):
             continue
 
         df = pd.read_parquet(fpath)
+
+        # Filter by date range if specified
+        if date_from or date_to:
+            time_col = df["_time"]
+            mask = pd.Series(True, index=df.index)
+            if date_from:
+                mask &= time_col >= pd.Timestamp(date_from, tz="UTC")
+            if date_to:
+                mask &= time_col < pd.Timestamp(date_to, tz="UTC")
+            df = df[mask].reset_index(drop=True)
+
         rows = len(df)
         total_rows += rows
 
