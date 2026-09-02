@@ -8,7 +8,7 @@ One multilayer perceptron per sensor direction (37 sensor directions; layer size
 
 ## Evaluation protocol
 
-Each sensor's data is split chronologically 80/20; the final 20% of the training window serves as the held-out test set (approximately the last seven months of 2023 for the three-year window). Metrics: mean absolute error (MAE, mph), root mean squared error (RMSE, mph), and mean absolute percentage error (MAPE, %). For context, each row also reports two properties of the sensor's full speed series: the coefficient of variation of speed over the full series (Speed CoV, dimensionless); the within-time-slot CoV (standard deviation of speed after removing the sensor's time-of-week mean profile, divided by mean speed, computed on stable 2023 data); and the congestion frequency (share of five-minute intervals below 50% of the sensor's 85th-percentile free-flow speed). A complementary common-test-set evaluation (identical held-out periods for all training scenarios) is summarised in the last section.
+Each sensor's data is split chronologically 80/20; the final 20% of the training window serves as the held-out test set (approximately the last seven months of 2023 for the three-year window). Metrics: mean absolute error (MAE, mph), root mean squared error (RMSE, mph), and mean absolute percentage error (MAPE, %). For context, each row also reports two properties of the sensor's full speed series: the coefficient of variation of speed over the three-year model window, 1 December 2020 to 1 December 2023 (Speed CoV, dimensionless) - i.e., the variability of exactly the data the model was trained and evaluated on; the within-time-slot CoV (standard deviation of speed after removing the sensor's time-of-week mean profile, divided by mean speed, computed over calendar year 2023 - a characterisation window chosen for stability, which overlaps but is not identical to the held-out test period); and the congestion frequency (share of five-minute intervals below 50% of the sensor's 85th-percentile free-flow speed, over the same three-year window). A complementary common-test-set evaluation (identical held-out periods for all training scenarios) is summarised in the last section.
 
 ## Per-sensor results — 3-year training regime
 
@@ -16,55 +16,58 @@ All rows in this table come from the **3-year initial training regime** (trained
 
 | # | Sensor | MAE (mph) | RMSE (mph) | MAPE (%) | Speed CoV | Within-slot CoV | Congestion (%) | Test samples |
 |---|---|---|---|---|---|---|---|---|
-| 1 | 1020 nw | 1.95 | 2.92 | 8.02 | 0.128 | 0.099 | 0.63 | 61,132 |
-| 2 | 1020 se | 1.67 | 2.42 | 6.48 | 0.139 | 0.092 | 0.41 | 60,958 |
-| 3 | 1056 e | 1.36 | 1.92 | 6.06 | 0.086 | 0.078 | 0.11 | 59,752 |
-| 4 | 1056 w | 1.75 | 2.47 | 7.57 | 0.099 | 0.087 | 0.17 | 60,544 |
-| 5 | 1063 e | 1.45 | 2.50 | 5.76 | 0.097 | 0.082 | 0.43 | 61,213 |
-| 6 | 1063 w | 1.59 | 2.47 | 5.50 | 0.110 | 0.076 | 0.52 | 61,253 |
-| 7 | 1071 ne | 2.09 | 3.65 | 10.48 | 0.128 | 0.097 | 1.72 | 62,524 |
-| 8 | 1071 sw | 1.31 | 1.93 | 4.31 | 0.082 | 0.060 | 0.17 | 62,668 |
-| 9 | 1163 nw | 2.37 | 3.36 | 9.55 | 0.162 | 0.105 | 1.31 | 62,835 |
-| 10 | 1163 se | 2.97 | 4.74 | 16.52 | 0.190 | 0.140 | 5.41 | 62,843 |
-| 11 | 1165 se | 2.07 | 3.04 | 8.16 | 0.130 | 0.082 | 1.93 | 61,874 |
-| 12 | 1173 n | 1.83 | 2.63 | 6.38 | 0.437 | 0.091 | 21.36 | 58,707 |
-| 13 | 1273 n | 1.90 | 2.99 | 7.41 | 0.123 | 0.095 | 0.83 | 61,176 |
-| 14 | 1276 e | 1.56 | 2.24 | 6.85 | 0.154 | 0.091 | 1.04 | 60,057 |
-| 15 | 1276 w | 3.52 | 5.50 | 27.63 | 0.271 | 0.197 | 12.92 | 59,959 |
-| 16 | 1385 n | 2.10 | 3.24 | 11.30 | 0.190 | 0.149 | 6.18 | 58,161 |
-| 17 | 1404 e | 2.69 | 4.38 | 11.19 | 0.201 | 0.136 | 6.28 | 61,257 |
-| 18 | 1404 w | 2.60 | 3.93 | 10.09 | 0.216 | 0.120 | 6.53 | 60,197 |
-| 19 | 1407 n | 1.90 | 3.20 | 10.03 | 0.129 | 0.101 | 1.15 | 62,645 |
-| 20 | 1407 s | 2.14 | 3.12 | 9.71 | 0.171 | 0.109 | 3.80 | 62,573 |
-| 21 | 1413 ne | 1.58 | 2.27 | 6.06 | 0.102 | 0.076 | 0.34 | 62,277 |
-| 22 | 1413 sw | 1.64 | 2.25 | 5.92 | 0.100 | 0.076 | 0.11 | 62,174 |
-| 23 | 1414 ne | 1.54 | 2.13 | 6.18 | 0.124 | 0.081 | 0.39 | 60,300 |
-| 24 | 1414 sw | 1.41 | 1.98 | 5.66 | 0.114 | 0.072 | 0.29 | 60,317 |
-| 25 | 1417 s | 1.47 | 2.08 | 7.07 | 0.111 | 0.091 | 0.20 | 62,237 |
-| 26 | 1418 e | 1.92 | 3.28 | 9.09 | 0.118 | 0.096 | 1.44 | 55,437 |
-| 27 | 1418 w | 1.74 | 3.06 | 7.90 | 0.093 | 0.090 | 0.57 | 55,694 |
-| 28 | 1420 nw | 2.34 | 3.59 | 10.31 | 0.158 | 0.109 | 3.37 | 62,082 |
-| 29 | 1420 se | 1.91 | 2.90 | 8.64 | 0.128 | 0.106 | 0.92 | 61,899 |
-| 30 | 1425 e | 1.80 | 2.48 | 3.36 | 0.066 | 0.048 | 0.14 | 62,208 |
-| 31 | 1425 w | 2.16 | 4.38 | 6.25 | 0.080 | 0.074 | 0.51 | 62,376 |
-| 32 | 1426 e | 2.26 | 3.25 | 4.32 | 0.075 | 0.066 | 0.17 | 61,908 |
-| 33 | 1426 w | 3.75 | 6.26 | 12.68 | 0.171 | 0.121 | 3.26 | 62,685 |
-| 34 | 1428 e | 3.88 | 7.14 | 12.68 | 0.164 | 0.113 | 5.04 | 61,259 |
+| 1 | 1020 nw | 1.95 | 2.92 | 8.02 | 0.124 | 0.099 | 0.50 | 61,132 |
+| 2 | 1020 se | 1.67 | 2.42 | 6.48 | 0.137 | 0.092 | 0.37 | 60,958 |
+| 3 | 1056 e | 1.36 | 1.92 | 6.06 | 0.086 | 0.078 | 0.10 | 59,752 |
+| 4 | 1056 w | 1.75 | 2.47 | 7.57 | 0.099 | 0.087 | 0.13 | 60,544 |
+| 5 | 1063 e | 1.45 | 2.50 | 5.76 | 0.097 | 0.082 | 0.41 | 61,213 |
+| 6 | 1063 w | 1.59 | 2.47 | 5.50 | 0.115 | 0.076 | 0.70 | 61,253 |
+| 7 | 1071 ne | 2.09 | 3.65 | 10.48 | 0.122 | 0.097 | 1.53 | 62,524 |
+| 8 | 1071 sw | 1.31 | 1.93 | 4.31 | 0.079 | 0.060 | 0.11 | 62,668 |
+| 9 | 1163 nw | 2.37 | 3.36 | 9.55 | 0.162 | 0.105 | 1.05 | 62,835 |
+| 10 | 1163 se | 2.97 | 4.74 | 16.52 | 0.184 | 0.140 | 5.00 | 62,843 |
+| 11 | 1165 se | 2.07 | 3.04 | 8.16 | 0.120 | 0.082 | 1.69 | 61,874 |
+| 12 | 1173 n | 1.83 | 2.63 | 6.38 | 0.521 | 0.091 | 28.79 | 58,707 |
+| 13 | 1273 n | 1.90 | 2.99 | 7.41 | 0.120 | 0.095 | 0.61 | 61,176 |
+| 14 | 1276 e | 1.56 | 2.24 | 6.85 | 0.157 | 0.091 | 1.14 | 60,057 |
+| 15 | 1276 w | 3.52 | 5.50 | 27.63 | 0.278 | 0.197 | 13.17 | 59,959 |
+| 16 | 1385 n | 2.10 | 3.24 | 11.30 | 0.178 | 0.149 | 5.20 | 58,161 |
+| 17 | 1404 e | 2.69 | 4.38 | 11.19 | 0.181 | 0.136 | 4.94 | 61,257 |
+| 18 | 1404 w | 2.60 | 3.93 | 10.09 | 0.191 | 0.120 | 5.61 | 60,197 |
+| 19 | 1407 n | 1.90 | 3.20 | 10.03 | 0.128 | 0.101 | 1.14 | 62,645 |
+| 20 | 1407 s | 2.14 | 3.12 | 9.71 | 0.169 | 0.109 | 3.67 | 62,573 |
+| 21 | 1413 ne | 1.58 | 2.27 | 6.06 | 0.099 | 0.076 | 0.26 | 62,277 |
+| 22 | 1413 sw | 1.64 | 2.25 | 5.92 | 0.095 | 0.076 | 0.06 | 62,174 |
+| 23 | 1414 ne | 1.54 | 2.13 | 6.18 | 0.117 | 0.081 | 0.34 | 60,300 |
+| 24 | 1414 sw | 1.41 | 1.98 | 5.66 | 0.110 | 0.072 | 0.23 | 60,317 |
+| 25 | 1417 s | 1.47 | 2.08 | 7.07 | 0.111 | 0.091 | 0.21 | 62,237 |
+| 26 | 1418 e | 1.92 | 3.28 | 9.09 | 0.116 | 0.096 | 1.49 | 55,437 |
+| 27 | 1418 w | 1.74 | 3.06 | 7.90 | 0.091 | 0.090 | 0.53 | 55,694 |
+| 28 | 1420 nw | 2.34 | 3.59 | 10.31 | 0.158 | 0.109 | 3.46 | 62,082 |
+| 29 | 1420 se | 1.91 | 2.90 | 8.64 | 0.124 | 0.106 | 0.76 | 61,899 |
+| 30 | 1425 e | 1.80 | 2.48 | 3.36 | 0.066 | 0.048 | 0.13 | 62,208 |
+| 31 | 1425 w | 2.16 | 4.38 | 6.25 | 0.073 | 0.074 | 0.34 | 62,376 |
+| 32 | 1426 e | 2.26 | 3.25 | 4.32 | 0.072 | 0.066 | 0.10 | 61,908 |
+| 33 | 1426 w | 3.75 | 6.26 | 12.68 | 0.176 | 0.121 | 3.50 | 62,685 |
+| 34 | 1428 e | 3.88 | 7.14 | 12.68 | 0.155 | 0.113 | 4.32 | 61,259 |
 | 35 | 1428 w | 2.17 | 3.25 | 4.12 | 0.066 | 0.060 | 0.06 | 61,158 |
-| 36 | 1429 e | 2.02 | 2.81 | 7.04 | 0.108 | 0.088 | 0.07 | 61,680 |
-| 37 | 1429 w | 2.00 | 2.90 | 7.04 | 0.108 | 0.095 | 0.25 | 60,874 |
+| 36 | 1429 e | 2.02 | 2.81 | 7.04 | 0.107 | 0.088 | 0.07 | 61,680 |
+| 37 | 1429 w | 2.00 | 2.90 | 7.04 | 0.108 | 0.095 | 0.24 | 60,874 |
 
 Aggregate: mean MAE 2.07 mph (median 1.92); mean MAPE 8.47% (median 7.41%). The highest-error sensor directions are 1276 west (MAPE 27.6%) and 1163 southeast (16.5%).
 
-Per-sensor error is well explained by the variability columns of the table, and the two figures below carry the argument. Against the whole-series Speed CoV and congestion frequency, MAPE correlates at Spearman rho = 0.78 and 0.80 respectively; against the within-slot CoV the correlation rises to rho = 0.94, visible as the tight diagonal in the right panel of the first figure. The left panel ranks all 37 sensors by within-slot CoV: 1276 west stands clearly first, matching its first place on error, while 1173 north - the sensor with the highest whole-series CoV (0.437) - sits mid-pack on both. The discrepancy between its two CoV columns is a historical level shift (yearly mean speed 8.4, 14.3, 47.4, 46.8 km/h for 2020-2023), which inflates whole-series CoV but is absorbed by the model's year feature; in its stable regime the road is highly predictable.
-
-The second figure shows the mechanism directly. With all weeks of 2023 folded onto one Monday-Sunday axis, 1276 west's percentile band balloons through every daytime: the same clock time spans near-standstill to free flow depending on the week, so a calendar-feature model - which must predict a single value per slot - is bounded by that band width (a time-of-week average alone still leaves 22% MAPE there). On 1425 east, the narrow ribbon explains its 3.4% MAPE. In short, prediction difficulty is driven almost entirely by day-to-day spread at the same time-of-week, which is exactly what the within-slot CoV column measures.
-
-Note that the error ranking is period-dependent: on the 2024-2025 common-test-set windows (last section), platform 1404 becomes the dominant outlier (MAPE up to 86.5%). The sensor data shows why: both directions slowed progressively from ~57 km/h (August 2024) to ~33 km/h (January 2025) with variance roughly tripling - a months-long, bidirectional degradation consistent with long-term roadworks at the site - so models trained before the change are evaluated against a changed road.
+Per-sensor error is well explained by the variability columns of the table, and the figures below carry the argument. Against the Speed CoV and congestion frequency columns, MAPE correlates at Spearman rho = 0.78 and 0.79 respectively; against the within-slot CoV the correlation rises to rho = 0.94, visible as the tight diagonal in the right panel of the figure below. The left panel ranks all 37 sensors by within-slot CoV: 1276 west stands clearly first, matching its first place on error, while 1173 north - the sensor with the highest Speed CoV (0.521) - sits mid-pack on both. The discrepancy between its two CoV columns is a historical level shift (yearly mean speed 8.4, 14.3, 47.4, 46.8 km/h for 2020-2023, entirely inside the training window), which inflates the Speed CoV but is absorbed by the model's year feature; in its stable regime the road is highly predictable.
 
 ![Left: within-slot CoV (2023) per sensor, sorted; highlighted bars are the sensors discussed in the text. Right: within-slot CoV against held-out MAPE under the 3-year regime (Spearman rho = 0.94).](within_slot_cov.png)
 
-![The within-slot spread seen directly: all weeks of 2023 folded onto one Monday-Sunday axis at 5-minute resolution. At each slot, the line is the mean across the ~52 weeks and the bands the 25th-75th and 10th-90th percentiles of those same weeks. On 1276 west (top) the same clock time spans near-standstill to free flow depending on the week; on 1425 east (bottom, lowest within-slot CoV) the band stays a narrow ribbon. A calendar-feature model predicts one value per slot, so the band width bounds its achievable accuracy.](sensor_1276w_profile.png)
+The figure below shows the mechanism directly. With all weeks of 2023 folded onto one Monday-Sunday axis, 1276 west's percentile band balloons through every daytime: the same clock time spans near-standstill to free flow depending on the week, so a calendar-feature model - which must predict a single value per slot - is bounded by that band width (a time-of-week average alone still leaves 22% MAPE there). On 1425 east, the narrow ribbon explains its 3.4% MAPE; 1173 north's 2023 band (middle panel) is nearly as narrow, confirming its predictability despite the Speed CoV. In short, prediction difficulty is driven almost entirely by day-to-day spread at the same time-of-week, which is exactly what the within-slot CoV column measures.
+
+![The within-slot spread seen directly: all weeks of 2023 folded onto one Monday-Sunday axis at 5-minute resolution. At each slot, the line is the mean across the ~52 weeks and the bands the 25th-75th and 10th-90th percentiles of those same weeks. On 1276 west (top) the same clock time spans near-standstill to free flow depending on the week. 1173 north (middle) shows why the Speed CoV misleads: within 2023 its band is a narrow ribbon despite the corpus-highest Speed CoV, which stems from pre-2022 level shifts. 1425 east (bottom, lowest within-slot CoV) barely fluctuates at all. A calendar-feature model predicts one value per slot, so the band width bounds its achievable accuracy.](sensor_1276w_profile.png)
+
+Note that the error ranking is period-dependent: on the 2024-2025 common-test-set windows (last section), platform 1404 becomes the dominant outlier (MAPE up to 86.5%). The sensor data shows why: both directions slowed progressively from ~57 km/h (August 2024) to ~33 km/h (January 2025) with variance roughly tripling - a months-long, bidirectional degradation most likely due to long-term roadworks or road alteration at the site - so models trained before the change are evaluated against a changed road. Recurrent December dips are visible in earlier years too (2021-2023) but recovered each January; the 2024-2025 episode differs in onset (September, months before the seasonal dip), depth (10th-percentile speeds near standstill), and persistence (no January recovery by the end of the data).
+
+![Platform 1404, both directions: monthly mean speed with 25th-75th and 10th-90th percentile bands over the full export (Dec 2020 - Feb 2025). Earlier December dips recover each January; the shaded September 2024 - January 2025 decline is deeper, starts months earlier, and shows no recovery, with the monthly standard deviation (SD, annotated on the chart) rising from ~5 to 17-23 km/h - a site-level regime change rather than seasonality.](sensor_1404_regime.png)
+
 
 ## Common-test-set scenario comparison
 
