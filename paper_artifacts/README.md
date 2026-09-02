@@ -30,3 +30,15 @@ y_pred = y_scaler.inverse_transform(model.predict(x_scaler.transform(X)))
 The feature-engineering pipeline that produces the 15 input features is in
 `experiments/phases/feature_eng.py` and
 `model/feature_engineering.py` in this repository.
+
+## Rebuilding the PDFs
+
+Both documents are generated from their markdown sources with pandoc:
+
+```bash
+pandoc model_evaluation.md -o Model_Evaluation.pdf \
+  -V geometry:margin=1.8cm -V fontsize=10pt \
+  -V header-includes='\usepackage{float}\floatplacement{figure}{H}'
+pandoc observed_monitoring_metrics.md -o Observed_Monitoring_Metrics.pdf \
+  -V geometry:margin=1.6cm -V fontsize=9pt -V papersize=a4 -V classoption=landscape
+```
