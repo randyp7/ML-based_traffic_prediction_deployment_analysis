@@ -11,8 +11,7 @@ Speed Prediction: An Empirical Analysis of Performance, Cost, and Scalability"**
 | `Observed_Monitoring_Metrics.pdf` | Resource-utilisation, thermal, and power metrics observed during the experiments across all six platforms, with collection methodology and reliability caveats. |
 | `SHA256_MANIFEST.txt` | SHA-256 checksums of every model, scaler, and document in this directory. |
 
-LaTeX sources of both PDFs are included (`model_evaluation.tex`,
-`observed_monitoring_metrics.tex`).
+LaTeX sources of both PDFs and their figures are in `sources/`.
 
 ## Loading a model
 
@@ -34,9 +33,12 @@ The feature-engineering pipeline that produces the 15 input features is in
 
 ## Rebuilding the PDFs
 
-Both documents are maintained as LaTeX and built with pdflatex:
+Both documents are maintained as LaTeX in `sources/` and built with pdflatex (run 2--3 times; longtable needs multiple passes):
 
 ```bash
-pdflatex model_evaluation.tex   # run 2-3 times: longtable needs multiple passes
-pdflatex observed_monitoring_metrics.tex   # run 2-3 times
+cd sources
+pdflatex model_evaluation.tex && pdflatex model_evaluation.tex
+pdflatex observed_monitoring_metrics.tex && pdflatex observed_monitoring_metrics.tex
+mv model_evaluation.pdf ../Model_Evaluation.pdf
+mv observed_monitoring_metrics.pdf ../Observed_Monitoring_Metrics.pdf
 ```
