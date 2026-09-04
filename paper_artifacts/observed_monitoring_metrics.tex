@@ -1,0 +1,585 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  9pt, a4paper, landscape]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks, pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1.6cm]{geometry}
+\usepackage{longtable,booktabs}
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\author{}
+\date{}
+
+\begin{document}
+
+\hypertarget{observed-monitoring-metrics-ml-based-traffic-speed-prediction}{%
+\section{Observed Monitoring Metrics --- ML-Based Traffic Speed
+Prediction}\label{observed-monitoring-metrics-ml-based-traffic-speed-prediction}}
+
+Companion document to the paper ``Cloud-Fog-Edge Deployment of ML-Based Traffic Speed Prediction: An Empirical Analysis of Performance, Cost, and Scalability''. It reports the resource utilisation, thermal, and power metrics observed during the experiments, which the paper references but does not present in full.
+
+\hypertarget{collection-methodology}{%
+\subsection{Collection methodology}\label{collection-methodology}}
+
+A background monitoring process sampled system metrics every 0.5 seconds during each experiment. CPU variables: system-wide utilisation (\%), per-process utilisation (\%), operating frequency (MHz), package temperature (deg C), and (where accessible) power (W) via Intel RAPL. GPU variables (via nvidia-smi, on GPU-equipped platforms only): utilisation (\%), memory use (MB), temperature (deg C), and power (W).
+
+\hypertarget{reliability-caveats-important}{%
+\subsection{Reliability caveats
+(important)}\label{reliability-caveats-important}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{Attribution.} CPU-system and GPU readings are whole-node/whole-device: on shared or virtualised platforms (CSF3 nodes, AWS EC2) they may include activity not attributable to the experiment process. They should be read as qualitative context, not precise per-process measurements; repetition of runs does not remove this systematic attribution error. Only the Dell Precision platform (dedicated hardware, no virtualisation) provides fully representative CPU and GPU readings.
+\item
+  \textbf{Power.} CPU power via Intel RAPL was accessible only on the Dell Precision (average CPU power 10-46 W across tiers; 0.1-8.7 Wh per training run). On CSF3 the powercap energy counters are root-restricted; AWS EC2 does not expose hardware power to guests. GPU power (nvidia-smi) is available on the GPU platforms.
+\item
+  \textbf{Diagnostic value.} The telemetry proved essential for outlier attribution: inflated fog-platform runs in an early campaign showed mean CPU clocks of 0.5-1.6 GHz at low package temperature (the signature of an OS power-saving state, not thermal throttling or contention) and were re-measured on mains power. On AWS t2.medium, elevated steal time and run-position-dependent slowdowns identified burstable CPU-credit exhaustion.
+\end{enumerate}
+
+\hypertarget{observed-metrics-by-platform-and-sensor-tier}{%
+\subsection{Observed metrics by platform and sensor
+tier}\label{observed-metrics-by-platform-and-sensor-tier}}
+
+Values aggregate the repeated runs of each platform's initial-training batch: mean of per-run averages; ``max'' is the maximum across runs. Empty cells: metric not available on that platform.
+
+\hypertarget{csf3-cloud-gpu-a100}{%
+\subsubsection{CSF3 Cloud GPU (A100)}\label{csf3-cloud-gpu-a100}}
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule
+\begin{minipage}[b]{0.08\columnwidth}\raggedright
+Tier\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU sys avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU proc avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU freq avg MHz\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU temp avg/max C\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU util avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU mem avg MB\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU power avg/max W\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU temp avg/max C\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+tiny\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+19.4\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+147.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,892\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+45.0/46.8\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+6.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+16,730\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+65.2/83.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+25.0/26.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+small\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+16.7\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+134.7\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,889\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+44.7/48.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+7.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+16,834\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+65.3/67.8\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+25.6/26.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+medium\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+16.6\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+130.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,887\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+43.7/47.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+7.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+16,861\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+65.0/81.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+24.8/26.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+full\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+15.7\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+125.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,873\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+42.6/45.8\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+7.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+16,907\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+64.9/68.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+24.5/25.0\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{dell-precision-fog-gpu-rtx-4090}{%
+\subsubsection{Dell Precision Fog GPU (RTX
+4090)}\label{dell-precision-fog-gpu-rtx-4090}}
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule
+\begin{minipage}[b]{0.08\columnwidth}\raggedright
+Tier\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU sys avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU proc avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU freq avg MHz\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU temp avg/max C\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU util avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU mem avg MB\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU power avg/max W\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU temp avg/max C\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+tiny\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+13.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+180.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+1,967\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+83.3/94.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+5.4\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+14,373\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+28.7/31.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+56.1/58.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+small\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+10.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+150.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,189\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+86.3/100.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+7.4\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+14,450\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+30.3/32.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+59.2/60.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+medium\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+11.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+152.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,163\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+86.6/100.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+6.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+14,477\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+30.7/33.4\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+59.7/62.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+full\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+10.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+134.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,127\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+86.3/100.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+6.7\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+14,607\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+30.4/34.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+59.6/61.0\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{csf3-jetson-sim}{%
+\subsubsection{CSF3 Jetson Sim}\label{csf3-jetson-sim}}
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule
+\begin{minipage}[b]{0.08\columnwidth}\raggedright
+Tier\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU sys avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU proc avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU freq avg MHz\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU temp avg/max C\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU util avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU mem avg MB\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU power avg/max W\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU temp avg/max C\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+tiny\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+9.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+127.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,785\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+47.7/49.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+4.8\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+8,596\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+68.1/70.4\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+25.9/26.0\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+small\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+9.3\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+123.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,801\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+49.4/51.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+6.3\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+8,643\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+68.7/81.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+26.5/27.0\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{csf3-edge-rsu-sim}{%
+\subsubsection{CSF3 Edge RSU Sim}\label{csf3-edge-rsu-sim}}
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule
+\begin{minipage}[b]{0.08\columnwidth}\raggedright
+Tier\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU sys avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU proc avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU freq avg MHz\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU temp avg/max C\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU util avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU mem avg MB\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU power avg/max W\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU temp avg/max C\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+tiny\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+62.4\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+93.1\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,250\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+84.2/85.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+small\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+60.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+90.8\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,250\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+84.1/86.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{csf3-rpi-sim}{%
+\subsubsection{CSF3 RPi Sim}\label{csf3-rpi-sim}}
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule
+\begin{minipage}[b]{0.08\columnwidth}\raggedright
+Tier\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU sys avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU proc avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU freq avg MHz\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU temp avg/max C\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU util avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU mem avg MB\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU power avg/max W\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU temp avg/max C\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+tiny\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+85.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+131.5\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,250\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+84.7/86.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+small\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+78.0\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+138.2\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,250\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+84.3/86.6\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{aws-t2.medium-rsu}{%
+\subsubsection{AWS t2.medium RSU}\label{aws-t2.medium-rsu}}
+
+\begin{longtable}[]{@{}lllllllll@{}}
+\toprule
+\begin{minipage}[b]{0.08\columnwidth}\raggedright
+Tier\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU sys avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU proc avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU freq avg MHz\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+CPU temp avg/max C\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU util avg \%\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU mem avg MB\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU power avg/max W\strut
+\end{minipage} & \begin{minipage}[b]{0.08\columnwidth}\raggedright
+GPU temp avg/max C\strut
+\end{minipage}\tabularnewline
+\midrule
+\endhead
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+tiny\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+64.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+128.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,300\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage}\tabularnewline
+\begin{minipage}[t]{0.08\columnwidth}\raggedright
+small\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+63.6\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+125.9\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+2,300\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage} & \begin{minipage}[t]{0.08\columnwidth}\raggedright
+---/---\strut
+\end{minipage}\tabularnewline
+\bottomrule
+\end{longtable}
+
+\hypertarget{interpretation-notes}{%
+\subsection{Interpretation notes}\label{interpretation-notes}}
+
+\begin{itemize}
+\tightlist
+\item
+  CPU process utilisation above 100\% indicates multi-threaded data loading and feature engineering phases; training itself is GPU-bound on GPU platforms (GPU utilisation averages are low because per-step kernels for a \textasciitilde142k-parameter MLP are dominated by launch overhead, consistent with the paper's finding that tensor-core throughput is not the bottleneck).
+\item
+  On the fog laptop workstation, sustained combined CPU+GPU load settles at reduced CPU clocks (1.2-1.7 GHz) at 80-88 deg C: normal power sharing that does not measurably affect GPU-bound wall-clock times.
+\item
+  The AWS t2.medium rows reflect a burstable instance: sustained full-CPU work beyond \textasciitilde1.5 hours exhausts CPU credits and caps the instance at its baseline rate; short workloads run at burst speed. Deployment schedules on burstable instances should be budgeted at baseline speed.
+\end{itemize}
+
+\end{document}

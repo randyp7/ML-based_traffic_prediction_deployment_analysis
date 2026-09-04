@@ -11,8 +11,8 @@ Speed Prediction: An Empirical Analysis of Performance, Cost, and Scalability"**
 | `Observed_Monitoring_Metrics.pdf` | Resource-utilisation, thermal, and power metrics observed during the experiments across all six platforms, with collection methodology and reliability caveats. |
 | `SHA256_MANIFEST.txt` | SHA-256 checksums of every model, scaler, and document in this directory. |
 
-Markdown sources of both PDFs are included (`model_evaluation.md`,
-`observed_monitoring_metrics.md`).
+LaTeX sources of both PDFs are included (`model_evaluation.tex`,
+`observed_monitoring_metrics.tex`).
 
 ## Loading a model
 
@@ -34,12 +34,9 @@ The feature-engineering pipeline that produces the 15 input features is in
 
 ## Rebuilding the PDFs
 
-Both documents are generated from their markdown sources with pandoc:
+Both documents are maintained as LaTeX and built with pdflatex:
 
 ```bash
-pandoc model_evaluation.md -o Model_Evaluation.pdf \
-  -V geometry:margin=1.8cm -V fontsize=10pt \
-  -V header-includes='\usepackage{float}\floatplacement{figure}{H}'
-pandoc observed_monitoring_metrics.md -o Observed_Monitoring_Metrics.pdf \
-  -V geometry:margin=1.6cm -V fontsize=9pt -V papersize=a4 -V classoption=landscape
+pdflatex model_evaluation.tex
+pdflatex observed_monitoring_metrics.tex
 ```
