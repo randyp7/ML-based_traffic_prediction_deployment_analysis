@@ -37,6 +37,6 @@ The feature-engineering pipeline that produces the 15 input features is in
 Both documents are maintained as LaTeX and built with pdflatex:
 
 ```bash
-pdflatex model_evaluation.tex
-pdflatex observed_monitoring_metrics.tex
+pdflatex model_evaluation.tex   # run 2-3 times: longtable needs multiple passes
+pdflatex observed_monitoring_metrics.tex   # run 2-3 times
 ```
